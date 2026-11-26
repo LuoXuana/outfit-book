@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D2785B" />
+      <stop offset="100%" stop-color="#B85C40" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <rect x="44" y="44" width="424" height="424" rx="84" fill="none" stroke="#FAF7F2" stroke-opacity="0.22" stroke-width="4" />
+  <g fill="none" stroke="#FAF7F2" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Hanger hook -->
+    <path d="M228 164 C228 134, 256 116, 276 128 C294 139, 288 164, 256 184 L256 208" />
+    <!-- Hanger shoulders and bottom bar -->
+    <path d="M256 208 L108 310 C94 320, 100 344, 118 344 L394 344 C412 344, 418 320, 404 310 Z" />
+  </g>
+  <!-- Decorative outfit tag / heart accent -->
+  <circle cx="256" cy="284" r="14" fill="#FAF7F2" fill-opacity="0.92" />
+</svg>

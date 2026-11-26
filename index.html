@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>穿搭本 — 家庭日常穿搭记录</title>
+  <meta name="description" content="记录女士、女孩、男孩每日穿搭照片与搭配笔记，支持日历打卡与本地 ZIP 备份。" />
+  <meta name="theme-color" content="#FAF7F2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="穿搭本" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <img src="./icons/icon.svg" alt="穿搭本" class="brand-logo" width="32" height="32" />
+        <div class="brand-text">
+          <h1 class="brand-title">穿搭本</h1>
+          <span id="header-count" class="brand-subtitle">共 0 套穿搭</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-toggle-search" class="icon-btn" type="button" aria-label="搜索穿搭" title="搜索穿搭">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button id="btn-header-backup" class="icon-btn" type="button" aria-label="备份与设置" title="备份与设置">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Views -->
+    <main class="app-main">
+      <!-- Lookbook View -->
+      <section id="view-lookbook" class="view-section active" aria-label="穿搭册">
+        <div id="search-bar" class="search-bar hidden">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="search-input" type="search" placeholder="搜索标题、上衣、外套、标签或备注…" autocomplete="off" />
+            <button id="btn-clear-search" class="clear-btn hidden" type="button" aria-label="清空搜索">×</button>
+          </div>
+        </div>
+
+        <div id="category-tabs" class="category-tabs" role="tablist" aria-label="穿搭分类"></div>
+        <div id="filter-chips" class="filter-chips"></div>
+
+        <div id="outfit-grid" class="outfit-grid"></div>
+
+        <div id="lookbook-empty" class="empty-state hidden">
+          <div class="empty-illustration">
+            <img src="./icons/icon.svg" alt="" width="64" height="64" />
+          </div>
+          <h2 id="empty-title" class="empty-title">还没有记录穿搭</h2>
+          <p id="empty-desc" class="empty-desc">拍下女士、女孩或男孩的日常搭配，选好分类和季节，随时翻看灵感。</p>
+          <button id="btn-empty-add" class="btn btn-primary" type="button">+ 记第一套穿搭</button>
+        </div>
+      </section>
+
+      <!-- Calendar View -->
+      <section id="view-calendar" class="view-section hidden" aria-label="穿搭日历">
+        <div class="calendar-card">
+          <div class="calendar-header">
+            <button id="btn-cal-prev" class="icon-btn-sm" type="button" aria-label="上个月">‹</button>
+            <h2 id="cal-month-label" class="cal-month-title">2026年11月</h2>
+            <button id="btn-cal-next" class="icon-btn-sm" type="button" aria-label="下个月">›</button>
+            <button id="btn-cal-today" class="chip-btn" type="button">今天</button>
+          </div>
+          <div id="cal-category-tabs" class="cal-category-tabs"></div>
+          <div class="cal-weekdays">
+            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
+
+        <div class="cal-day-panel">
+          <div class="cal-day-header">
+            <h3 id="cal-selected-label" class="cal-day-title">今日穿搭</h3>
+            <button id="btn-cal-add-day" class="btn btn-soft btn-sm" type="button">+ 记录这天穿搭</button>
+          </div>
+          <div id="cal-day-list" class="cal-day-list"></div>
+        </div>
+      </section>
+
+      <!-- Backup & Settings View -->
+      <section id="view-backup" class="view-section hidden" aria-label="备份与管理">
+        <div id="file-protocol-notice" class="notice-banner hidden">
+          当前通过本地文件方式打开，离线缓存与安装到桌面需通过 HTTPS 网址访问。
+        </div>
+
+        <div class="panel-card">
+          <h2 class="panel-title">本地存储概览</h2>
+          <p class="panel-desc">所有照片已自动压缩为通用 JPEG 格式并保存在当前手机本地，不会上传到任何服务器。</p>
+          <div id="backup-stats" class="stats-grid"></div>
+        </div>
+
+        <div class="panel-card">
+          <h2 class="panel-title">换机 / 防丢失备份 (.zip)</h2>
+          <p class="panel-desc">导出为通用 ZIP 压缩包（内含 <code>data.json</code> 与 <code>images/*.jpg</code>），电脑或手机都能直接解压看图。</p>
+
+          <div class="backup-actions">
+            <button id="btn-export-zip" class="btn btn-primary btn-block" type="button">导出 ZIP 备份包</button>
+            <button id="btn-share-zip" class="btn btn-soft btn-block hidden" type="button">导出并分享给微信 / 隔空投送</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3 class="sub-title">从 ZIP 恢复穿搭</h3>
+          <div class="import-mode-group" role="radiogroup" aria-label="导入方式">
+            <label class="mode-option">
+              <input type="radio" name="import-mode" value="merge" checked />
+              <span><strong>合并导入</strong>（保留现有穿搭，仅补充新记录）</span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="import-mode" value="replace" />
+              <span><strong>覆盖恢复</strong>（清空当前记录，还原为备份内容）</span>
+            </label>
+          </div>
+          <input id="input-import-zip" type="file" accept=".zip,application/zip,application/x-zip-compressed" class="sr-only" />
+          <button id="btn-import-zip" class="btn btn-outline btn-block" type="button">选择 ZIP 备份文件导入</button>
+
+          <div id="backup-progress" class="progress-wrap hidden">
+            <div class="progress-text-row">
+              <span id="backup-progress-text">正在处理…</span>
+              <span id="backup-progress-pct">0%</span>
+            </div>
+            <div class="progress-track">
+              <div id="backup-progress-bar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <details class="panel-card guide-card">
+          <summary class="guide-summary">添加到 iPhone / 华为手机桌面指南</summary>
+          <div class="guide-body">
+            <div class="guide-block">
+              <h4>iPhone (Safari 浏览器)</h4>
+              <ol>
+                <li>使用自带 <strong>Safari</strong> 打开本应用网址。</li>
+                <li>点击底部工具栏的 <strong>分享图标</strong>（方框带向上箭头）。</li>
+                <li>向下滑动并点击 <strong>“添加到主屏幕”</strong>，再点右上角 <strong>“添加”</strong>。</li>
+              </ol>
+            </div>
+            <div class="guide-block">
+              <h4>华为手机 (华为浏览器 / Chrome)</h4>
+              <ol>
+                <li>用手机浏览器打开本应用网址。</li>
+                <li>点击右下角或右上角 <strong>菜单图标</strong>。</li>
+                <li>选择 <strong>“添加到桌面”</strong> 或 <strong>“安装应用”</strong> 即可生成桌面图标。</li>
+              </ol>
+            </div>
+            <p class="guide-tip">提示：清理手机浏览器缓存可能会清掉本地数据，建议每月顺手点一次「导出 ZIP 备份包」存到网盘或微信收藏。</p>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="bottom-nav" aria-label="主导航">
+      <button class="nav-tab active" type="button" data-tab="lookbook">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>穿搭册</span>
+      </button>
+
+      <button id="btn-fab-add" class="nav-add-btn" type="button" aria-label="记一套穿搭">
+        <span class="nav-add-plus">+</span>
+        <span class="nav-add-label">记穿搭</span>
+      </button>
+
+      <button class="nav-tab" type="button" data-tab="calendar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>日历</span>
+      </button>
+
+      <button class="nav-tab" type="button" data-tab="backup">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+        <span>备份</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Add / Edit Outfit Sheet -->
+  <div id="modal-editor" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+    <div class="sheet-panel">
+      <div class="sheet-header">
+        <h2 id="editor-title" class="sheet-title">记一套穿搭</h2>
+        <button id="btn-editor-close" class="icon-btn" type="button" aria-label="关闭">×</button>
+      </div>
+
+      <form id="editor-form" class="sheet-body">
+        <div class="form-section">
+          <div class="section-label-row">
+            <span class="form-label">穿搭照片</span>
+            <span id="editor-photo-count" class="form-hint">0 / 9 张</span>
+          </div>
+          <div class="photo-picker-row">
+            <input id="input-camera" type="file" accept="image/*" capture="environment" class="sr-only" />
+            <input id="input-gallery" type="file" accept="image/*" multiple class="sr-only" />
+            <button id="btn-take-photo" class="btn btn-soft flex-1" type="button">📷 拍照</button>
+            <button id="btn-pick-photos" class="btn btn-soft flex-1" type="button">🖼️ 从相册选</button>
+          </div>
+          <div id="photo-processing-hint" class="processing-hint hidden">正在压缩照片为通用 JPEG…</div>
+          <div id="editor-photo-list" class="editor-photo-list"></div>
+        </div>
+
+        <div class="form-section">
+          <span class="form-label">所属分类</span>
+          <div id="editor-category" class="segmented-group"></div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label" for="editor-title-input">穿搭标题（选填）</label>
+          <input id="editor-title-input" type="text" class="text-input" maxlength="60" placeholder="不填将自动生成，如：11月26日 女士冬季穿搭" />
+        </div>
+
+        <div class="form-section">
+          <span class="form-label">适用季节（可多选）</span>
+          <div id="editor-seasons" class="pill-select-group"></div>
+        </div>
+
+        <div class="form-section">
+          <span class="form-label">场景与风格标签</span>
+          <div id="editor-tags" class="pill-select-group"></div>
+          <div class="custom-tag-row">
+            <input id="editor-custom-tag" type="text" class="text-input" maxlength="16" placeholder="输入自定义标签（如：幼儿园、面试）" />
+            <button id="btn-add-tag" class="btn btn-soft btn-sm" type="button">添加</button>
+          </div>
+        </div>
+
+        <details id="editor-items-details" class="form-details">
+          <summary>单品拆解（选填：文字 + 单品照片）</summary>
+          <input id="input-item-camera" type="file" accept="image/*" capture="environment" class="sr-only" />
+          <input id="input-item-gallery" type="file" accept="image/*" class="sr-only" />
+          <div class="items-editor-list">
+            <div class="item-editor-card">
+              <div class="item-photo-slot" data-item-photo-slot="top"></div>
+              <div class="item-editor-fields">
+                <div class="item-editor-head">
+                  <label class="mini-label" for="item-top">上装</label>
+                  <div class="item-photo-actions">
+                    <button type="button" class="item-mini-btn" data-pick-item-camera="top">📷 拍照</button>
+                    <button type="button" class="item-mini-btn" data-pick-item-gallery="top">🖼️ 相册</button>
+                  </div>
+                </div>
+                <input id="item-top" type="text" class="text-input" placeholder="如：米白色高领打底" />
+              </div>
+            </div>
+            <div class="item-editor-card">
+              <div class="item-photo-slot" data-item-photo-slot="bottom"></div>
+              <div class="item-editor-fields">
+                <div class="item-editor-head">
+                  <label class="mini-label" for="item-bottom">下装 / 连衣裙</label>
+                  <div class="item-photo-actions">
+                    <button type="button" class="item-mini-btn" data-pick-item-camera="bottom">📷 拍照</button>
+                    <button type="button" class="item-mini-btn" data-pick-item-gallery="bottom">🖼️ 相册</button>
+                  </div>
+                </div>
+                <input id="item-bottom" type="text" class="text-input" placeholder="如：直筒牛仔裤" />
+              </div>
+            </div>
+            <div class="item-editor-card">
+              <div class="item-photo-slot" data-item-photo-slot="outer"></div>
+              <div class="item-editor-fields">
+                <div class="item-editor-head">
+                  <label class="mini-label" for="item-outer">外套</label>
+                  <div class="item-photo-actions">
+                    <button type="button" class="item-mini-btn" data-pick-item-camera="outer">📷 拍照</button>
+                    <button type="button" class="item-mini-btn" data-pick-item-gallery="outer">🖼️ 相册</button>
+                  </div>
+                </div>
+                <input id="item-outer" type="text" class="text-input" placeholder="如：卡其色风衣" />
+              </div>
+            </div>
+            <div class="item-editor-card">
+              <div class="item-photo-slot" data-item-photo-slot="accessories"></div>
+              <div class="item-editor-fields">
+                <div class="item-editor-head">
+                  <label class="mini-label" for="item-accessories">鞋帽 / 配饰</label>
+                  <div class="item-photo-actions">
+                    <button type="button" class="item-mini-btn" data-pick-item-camera="accessories">📷 拍照</button>
+                    <button type="button" class="item-mini-btn" data-pick-item-gallery="accessories">🖼️ 相册</button>
+                  </div>
+                </div>
+                <input id="item-accessories" type="text" class="text-input" placeholder="如：小白鞋、帆布包" />
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="form-section">
+          <label class="form-label" for="editor-wear-date">穿搭日期（选填，同步到日历）</label>
+          <div class="date-row">
+            <input id="editor-wear-date" type="date" class="text-input flex-1" />
+            <button id="btn-date-today" class="btn btn-soft btn-sm" type="button">今天</button>
+            <button id="btn-date-clear" class="btn btn-outline btn-sm" type="button">不记日期</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label" for="editor-note">搭配备注</label>
+          <textarea id="editor-note" class="text-area" rows="3" placeholder="记录尺码、面料厚度、温度感受或购买链接关键词…"></textarea>
+        </div>
+      </form>
+
+      <div class="sheet-footer">
+        <button id="btn-editor-cancel" class="btn btn-outline" type="button">取消</button>
+        <button id="btn-editor-save" class="btn btn-primary flex-1" type="button">保存穿搭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outfit Detail Modal -->
+  <div id="modal-detail" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="detail-panel">
+      <div class="detail-topbar">
+        <button id="btn-detail-close" class="icon-btn" type="button" aria-label="返回">←</button>
+        <div class="detail-topbar-actions">
+          <button id="btn-detail-fav" class="icon-btn" type="button" aria-label="收藏">♡</button>
+          <button id="btn-detail-edit" class="btn btn-soft btn-sm" type="button">编辑</button>
+          <button id="btn-detail-delete" class="btn btn-danger-soft btn-sm" type="button">删除</button>
+        </div>
+      </div>
+
+      <div id="detail-body" class="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- Full-Screen Photo Lightbox -->
+  <div id="modal-lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="查看大图">
+    <div class="lightbox-topbar">
+      <span id="lightbox-counter" class="lightbox-counter">1 / 1</span>
+      <div class="lightbox-actions">
+        <button id="btn-lightbox-download" class="btn btn-dark-pill btn-sm" type="button">保存图片 (.jpg)</button>
+        <button id="btn-lightbox-close" class="lightbox-close" type="button" aria-label="关闭大图">×</button>
+      </div>
+    </div>
+    <div id="lightbox-stage" class="lightbox-stage">
+      <button id="btn-lightbox-prev" class="lightbox-arrow left" type="button" aria-label="上一张">‹</button>
+      <img id="lightbox-img" src="" alt="穿搭大图" class="lightbox-img" />
+      <button id="btn-lightbox-next" class="lightbox-arrow right" type="button" aria-label="下一张">›</button>
+    </div>
+  </div>
+
+  <!-- Custom Confirm Dialog -->
+  <div id="modal-confirm" class="modal-backdrop hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="confirm-card">
+      <h3 id="confirm-title" class="confirm-title">确认操作</h3>
+      <p id="confirm-message" class="confirm-message"></p>
+      <div class="confirm-actions">
+        <button id="btn-confirm-cancel" class="btn btn-outline flex-1" type="button">取消</button>
+        <button id="btn-confirm-ok" class="btn btn-danger flex-1" type="button">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
